@@ -1,0 +1,174 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* Height of the fixed navbar — anchors scroll to just below it. */
+    --header-height: 4.5rem;
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --header-height: 5.25rem;
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+    /* Keeps the lightbox and mobile menu from shifting layout when they lock scroll. */
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display font-semibold;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-terracotta ring-offset-2 ring-offset-cream;
+    border-radius: 0.25rem;
+  }
+
+  /* No colour override: forcing ink here made selected text vanish against the gold tint on
+     the dark gallery and footer. Letting each section keep its own colour passes on both. */
+  ::selection {
+    @apply bg-gold/30;
+  }
+
+  /* The reveal animation hides content until JavaScript runs, so only arm it
+     once the inline bootstrap in layout.tsx has flagged the document. */
+  .js .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    /* Hand the layer back. The reveal fires once, and two dozen elements left permanently
+       promoted cost memory for an animation that will never run again. */
+    will-change: auto;
+  }
+
+  /* Without scripting the navbar never gets its scrolled state, so it would sit transparent
+     over a cream page with cream text. Give it the solid treatment from the start instead. */
+  html:not(.js) [data-site-header] {
+    @apply border-ink/10 bg-cream/95 shadow-soft backdrop-blur-md;
+  }
+
+  html:not(.js) [data-site-header] a,
+  html:not(.js) [data-site-header] button {
+    @apply text-ink;
+    text-shadow: none;
+  }
+}
+
+@layer components {
+  .section {
+    @apply py-20 sm:py-24 lg:py-28;
+  }
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.22em] text-terracotta;
+  }
+
+  .section-title {
+    @apply mt-3 font-display text-3xl leading-tight sm:text-4xl lg:text-[2.75rem];
+  }
+
+  .section-lede {
+    @apply mt-4 max-w-prose text-base leading-relaxed text-ink-muted sm:text-lg;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold tracking-wide transition-all duration-200 ease-entrance disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply btn bg-terracotta text-cream shadow-soft hover:-translate-y-0.5 hover:bg-terracotta-dark hover:shadow-lift;
+  }
+
+  .btn-secondary {
+    @apply btn border border-ink/15 bg-cream text-ink hover:-translate-y-0.5 hover:border-ink/30 hover:bg-cream-dark;
+  }
+
+  .btn-on-dark {
+    @apply btn border border-cream/45 bg-cream/10 text-cream backdrop-blur-sm hover:-translate-y-0.5 hover:border-cream hover:bg-cream hover:text-ink;
+  }
+
+  .card {
+    @apply rounded-2xl border border-ink/10 bg-white/70 p-7 shadow-soft transition-shadow duration-300;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+
+  /* The border is the only thing separating a white input from the near-white card behind it,
+     so it has to clear the 3:1 that WCAG asks of a UI boundary — ink/15 was 1.35:1. The
+     placeholder is held at ink-muted for the same reason: ink-soft on white is only 4.05:1. */
+  .field-control {
+    @apply w-full rounded-xl border border-ink/50 bg-white px-4 py-3 text-base text-ink shadow-sm transition-colors placeholder:text-ink-muted focus:border-terracotta focus:outline-none focus:ring-2 focus:ring-terracotta/60;
+  }
+
+  .field-control-invalid {
+    @apply border-terracotta ring-2 ring-terracotta/25;
+  }
+
+  .field-error {
+    @apply mt-1.5 flex items-start gap-1.5 text-sm font-medium text-terracotta;
+  }
+}
+
+@layer utilities {
+  /* Hairline rule used under section headings and inside the footer. */
+  .rule {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-ink/15 to-transparent;
+  }
+
+  .text-shadow-hero {
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Visitors who asked the OS for less motion get the finished state, never the journey. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .js .reveal,
+  .js .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

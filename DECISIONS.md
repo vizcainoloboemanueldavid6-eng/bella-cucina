@@ -98,9 +98,13 @@ OpenStreetMap embed shows a plausible neighborhood instead of the middle of the 
 The reviews carry the required "Sample reviews for demo purposes" line, and the footer carries
 "Demo project — Bella Cucina is a fictional restaurant." on every page view.
 
-**`site.seo.url` is a placeholder.**
-It is set to `https://bella-cucina.vercel.app`. Canonical URL, Open Graph URLs, the sitemap and the
-JSON-LD all derive from it, so changing that one line after the first deploy fixes all of them.
+**`site.seo.url` is the real production address, `https://bella-cucina-steel.vercel.app`.**
+It shipped as the placeholder `https://bella-cucina.vercel.app`, which turned out to be somebody
+else's project — Vercel had already given that name away and assigned this one `-steel`. Canonical
+URL, Open Graph URLs, the sitemap, `robots.txt` and the JSON-LD all derive from this one line, so
+for the first deploy every one of them pointed a search engine at a stranger's site. Corrected the
+morning after the first deploy; if the project ever gets a custom domain, this is still the only
+line to change.
 
 ## Behaviour
 

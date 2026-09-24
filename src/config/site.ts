@@ -119,7 +119,7 @@ export const site = {
 
   seo: {
     /** Absolute origin, used for canonical URLs, Open Graph and the sitemap. */
-    url: 'https://bella-cucina.vercel.app',
+    url: 'https://bella-cucina-steel.vercel.app',
     title: 'Bella Cucina — Authentic Italian Restaurant',
     description:
       'Handmade pasta, wood-fired pizza and curated Italian wines in the heart of the city. Family recipes served since 1998. Book a table in seconds.',

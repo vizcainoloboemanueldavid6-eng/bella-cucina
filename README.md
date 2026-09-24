@@ -76,15 +76,21 @@ site makes is the OpenStreetMap iframe in the Visit section.
 
 ## Measured
 
-Lighthouse, mobile preset, against the production build served with the compression any static
-host applies:
+Lighthouse 12, mobile preset (simulated slow 4G, 4× CPU slowdown), run five times against the
+production build served with the brotli compression any static host applies. Median of the five:
 
 | Performance | Accessibility | Best Practices | SEO |
 | ----------- | ------------- | -------------- | --- |
-| 96          | 100           | 100            | 100 |
+| 93          | 100           | 100            | 100 |
 
-Largest Contentful Paint 2.5 s, Total Blocking Time ~120 ms, Cumulative Layout Shift 0,
-368 KB transferred on first load.
+Largest Contentful Paint 2.6 s, Total Blocking Time ~190 ms, Cumulative Layout Shift 0,
+Speed Index 1.9 s, 368 KB transferred on first load.
+
+The brief set 95 as the bar for all four. Performance lands two points under it on the laptop that
+built the site (the same page scored 95–96 in quieter runs earlier in the session — the score moves
+with the machine). The lever that would close the gap is rendering only the open menu tab instead of
+all five; it was left alone on purpose so the whole menu stays in the HTML for search engines and
+for anyone reading without JavaScript. See [DECISIONS.md](DECISIONS.md).
 
 ## Run it
 

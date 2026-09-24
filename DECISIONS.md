@@ -150,6 +150,23 @@ arrow keys, backdrop click, scroll lock and focus restoration.
 **Opening hours never highlight "today".**
 Same reason as the date bounds — a static export has no idea what day it is when it is served.
 
+## Measurement
+
+**Performance is reported as 93, not 95.**
+The brief asks for Lighthouse mobile 95 or better in all four categories. Accessibility, Best
+Practices and SEO are 100. Performance measured 93 as the median of five runs on the laptop that
+built the site, with the same page reaching 95–96 in quieter runs earlier in the session — the
+number tracks machine load, and a fresh measurement on real hosting will differ again. The README
+prints the median rather than the best run.
+
+The remaining cost is main-thread work on a 4×-throttled CPU parsing a 158 KB document, and the
+largest single contributor is the menu: all five categories, thirty dishes, are in the HTML with the
+inactive tabs `hidden`. Rendering only the open tab would cut that and very likely reach the bar. It
+was not done, because the full menu in the markup is what a search engine indexes and what a visitor
+without JavaScript reads; trading that for two synthetic points is the wrong side of the bargain
+for a restaurant. `experimental.inlineCss` would recover another ~200 ms but is an experimental
+framework flag, which has no place in a site handed to a client.
+
 ## Small things
 
 **Brand icons are inlined.**

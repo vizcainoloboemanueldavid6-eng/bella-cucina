@@ -106,14 +106,20 @@ npm run dev
 
 Then open <http://localhost:3000>.
 
-| Script            | What it does                                           |
-| ----------------- | ------------------------------------------------------ |
-| `npm run dev`     | Development server with hot reload                     |
-| `npm run build`   | Static export into `out/`                              |
-| `npm run preview` | Serves the built `out/` folder on port 4000            |
-| `npm run lint`    | ESLint                                                 |
-| `npm run format`  | Prettier, with Tailwind class sorting                  |
-| `npm run images`  | Regenerates the responsive variants in `public/images` |
+| Script                    | What it does                                                               |
+| ------------------------- | -------------------------------------------------------------------------- |
+| `npm run dev`             | Development server with hot reload                                         |
+| `npm run build`           | Static export into `out/`                                                  |
+| `npm run preview`         | Serves the built `out/` folder on port 4000                                |
+| `npm run lint`            | ESLint                                                                     |
+| `npm run format`          | Prettier, with Tailwind class sorting                                      |
+| `npm run images`          | Regenerates the responsive variants in `public/images`                     |
+| `npm run check:translate` | Drives every control on the built page as if Chrome had auto-translated it |
+| `npm run verify`          | Lint, build, then the translation check — run it before every deploy       |
+
+The translation check needs Google Chrome installed (it drives it through Playwright) and serves
+`out/` itself on port 4350. `npm run check:translate -- --url https://your-site.example` points it at
+a deployed copy instead.
 
 ## Make it yours
 
@@ -243,8 +249,9 @@ src/
   config/site.ts        everything a client would want to change
   data/                 menu.ts  reviews.ts  gallery.ts
   hooks/useInView.ts    IntersectionObserver hook behind the reveals
-  lib/                  utils.ts  structuredData.ts  images.ts
+  lib/                  utils.ts  structuredData.ts  images.ts  domGuard.ts
 scripts/images.mjs      generates the responsive variants (npm run images)
+scripts/translate-check.mjs  auto-translate regression check (npm run check:translate)
 public/
   images/               ten WebP photographs, all under 200 KB,
                         plus the generated -480 / -768 / -1200 / -1600 siblings

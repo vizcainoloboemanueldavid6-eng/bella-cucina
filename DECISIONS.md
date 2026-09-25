@@ -154,6 +154,88 @@ arrow keys, backdrop click, scroll lock and focus restoration.
 **Opening hours never highlight "today".**
 Same reason as the date bounds — a static export has no idea what day it is when it is served.
 
+## Visitors who read the site through Chrome's translation
+
+**Why this section exists.**
+Real visitors of a sibling site in this series open these English pages in Chrome on Android with
+a Spanish phone, so Chrome auto-translates them. Translate replaces every text node on the page
+with `<font style="vertical-align: inherit;"><font …>…</font></font>` and translates anything
+rendered afterwards too. React keeps pointing at the original text nodes, which has two
+consequences: removing or moving one of them throws `NotFoundError: Failed to execute
+'removeChild' on 'Node'` and Next.js replaces the whole page with "Application error" (that is what
+crashed the sibling site), and updating one writes into a node nobody can see any more.
+
+**What was found here (2026-09-25).**
+The live site never crashed: every conditional in the page swaps whole elements, never bare text.
+It did show stale content on a translated page, in three places, all reproduced against
+`https://bella-cucina-steel.vercel.app` with the check described below:
+
+- the About counters stayed at "0+ · 0+ · 0k+" instead of counting to "25+ · 40+ · 12k+";
+- the lightbox counter stayed at "1 / 8" whatever photo was open;
+- the reservation note counter stayed at "0 / 300 characters" while the guest typed.
+
+**The rule the components now follow: dynamic text is always the only child of its element.**
+`{shown}{suffix}`, `{index + 1} / {total}` and `{values.note.length} / {NOTE_MAX_LENGTH} characters`
+each rendered several sibling text nodes that React updated in place. They are now a single
+template string inside their own element. For an element whose only child is a string, React does
+not keep a text node at all: it rewrites the element's text content, which replaces whatever
+Translate put there, so the visitor sees the new value (and Translate translates it again). The
+alternative the brief suggested — a `<span key={value}>` remounted on every change — gives the same
+result, but the About counters change sixty times a second and remounting three spans per frame
+buys nothing over the text-content path. Places that swap whole blocks already do it with keys (the
+reviews `<figure key={active}>`, the menu panels). The footer's `CopyrightYear` returned a bare
+number sitting between "©" and the restaurant name; it is now a `<span>`. The `<option>` labels in
+the guest picker were three text nodes (`{count} {guest|guests}`) that never change; they became one
+string anyway so the file follows one rule.
+
+**A DOM guard is installed as a safety net, not as the fix.**
+`src/lib/domGuard.ts` is inlined into `<head>` and runs before hydration. It wraps
+`Node.prototype.removeChild` and `insertBefore`: when the node (or the reference node) is no longer
+a child of the parent — the situation that only a translator or an extension can create — the
+removal is skipped or the insertion becomes an append, and `[dom-guard] …` is logged with
+`console.error` instead of the page going down. It exists for a future edit that forgets the rule
+above. It does not hide bugs: React never makes those calls with a foreign node on an untranslated
+page, so the guard is inert in normal use (the check verifies that ordinary calls still behave
+natively), and the translation check fails on any `[dom-guard]` message, so a regression is caught
+before it ships even though visitors would be spared the crash. The current page passes the check
+without the guard ever firing, which means the component-level fix holds on its own.
+
+**`npm run check:translate` is the regression check; `npm run verify` runs it after lint and build.**
+`scripts/translate-check.mjs` serves `out/` on port 4350 (or tests `--url <deployed site>`),
+drives Chrome through Playwright at 390 px (mobile emulation) and 1440 px, and exercises every
+interactive element: the mobile drawer (hamburger, close button, Escape, backdrop, every drawer
+link, the CTA), the desktop nav and brand link, the skip link, hero and footer anchors, the
+floating WhatsApp button and the directions link (popups, closed straight away), every menu tab by
+click and by arrow/Home/End keys, the lightbox (open, next, previous, wrap-around both ways, arrow
+keys, close button, Escape, backdrop), the reviews carousel (next, previous, dots, arrow keys), the
+About counters, and the booking form through every validation message, the note counter, a valid
+submission and "Make another booking". Each scenario runs twice — plain, then with Translate
+simulated on load and re-run after every single interaction — and at each step the check fails on
+a page error, an "Application error" screen, a React hydration error or a `[dom-guard]` report, and
+compares what the visitor reads against the plain run and against explicit expectations (the
+counter reads "3 / 8", the confirmation lists "4 guests", …). Re-translating after each
+interaction is the part that matters: without it, new content never gets wrapped and the crash
+cannot reproduce. The simulation marks nothing and changes nothing but text nodes, which is what
+Translate does; attribute translation (`placeholder`, `aria-label`) is not simulated because React
+only ever sets attributes by name. `tel:` and `mailto:` links are checked for presence but not
+followed, since they hand off to the operating system. Third-party requests (map tiles, WhatsApp)
+are blocked so the run is hermetic, `window.open` is stubbed to record the WhatsApp URL, and smooth
+scrolling is switched off on the test page only, because Playwright waits for every animated scroll
+to settle before clicking and that alone tripled the run time. The whole check takes about three
+and a half minutes.
+
+The harness was checked against a deliberate regression before it was trusted: turning the
+hamburger's hidden label into `{open && 'Close menu'}{!open && 'Open menu'}` makes it fail with
+`[dom-guard] removeChild skipped` on the first tap, and with the guard removed as well it fails with
+the exact `NotFoundError` and the "Application error" screen the sibling site showed. Both edits
+were reverted.
+
+**Playwright is a dev dependency, launched against the installed Google Chrome.**
+Pinned to 1.57.0, the version the sibling projects use. It drives the machine's own Chrome
+(`channel: 'chrome'`), because the translation bug is a Chrome bug and because Playwright's bundled
+Chromium does not start on the machine that built this. `PW_CHANNEL=` (empty) switches back to the
+bundled browser on a machine where it works.
+
 ## Measurement
 
 **Performance is reported as 93, not 95.**

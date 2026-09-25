@@ -11,7 +11,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "images": "node scripts/images.mjs"
+    "images": "node scripts/images.mjs",
+    "check:translate": "node scripts/translate-check.mjs",
+    "verify": "npm run lint && npm run build && npm run check:translate"
   },
   "dependencies": {
     "lucide-react": "1.47.0",
@@ -27,6 +29,7 @@
     "autoprefixer": "10.6.1",
     "eslint": "9.39.5",
     "eslint-config-next": "15.5.26",
+    "playwright": "1.57.0",
     "postcss": "8.5.28",
     "prettier": "3.9.8",
     "prettier-plugin-tailwindcss": "0.8.1",

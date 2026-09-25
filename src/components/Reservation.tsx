@@ -479,7 +479,7 @@ export default function Reservation() {
                       </option>
                       {GUEST_OPTIONS.map((count) => (
                         <option key={count} value={String(count)} className="text-ink">
-                          {count} {count === 1 ? 'guest' : 'guests'}
+                          {`${count} ${count === 1 ? 'guest' : 'guests'}`}
                         </option>
                       ))}
                     </select>
@@ -510,7 +510,8 @@ export default function Reservation() {
                     onChange={(event) => updateField('note', event.target.value)}
                   />
                   <p id="reserve-note-counter" className="mt-1.5 text-right text-xs text-ink-muted">
-                    {values.note.length} / {NOTE_MAX_LENGTH} characters
+                    {/* One string so a translated page still sees the count change (About.tsx). */}
+                    {`${values.note.length} / ${NOTE_MAX_LENGTH} characters`}
                   </p>
                 </div>
               </div>

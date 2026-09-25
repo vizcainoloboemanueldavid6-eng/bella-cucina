@@ -194,9 +194,8 @@ export default function Lightbox({ images, index, onIndexChange, onClose }: Ligh
         <div id={STATUS_ID} aria-live="polite" className="min-w-0 flex-1 text-center">
           <p className="font-display text-base text-cream sm:text-lg">{image.caption}</p>
           <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-gold">
-            <span aria-hidden="true">
-              {index + 1} / {total}
-            </span>
+            {/* A single string, not `{index + 1} / {total}`: see the note in About.tsx. */}
+            <span aria-hidden="true">{`${index + 1} / ${total}`}</span>
             <span className="sr-only">{`Photo ${index + 1} of ${total}`}</span>
           </p>
         </div>

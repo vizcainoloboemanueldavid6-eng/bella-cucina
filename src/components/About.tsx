@@ -70,10 +70,11 @@ function Counter({ value, suffix, label }: CounterProps) {
         {label}
       </dt>
       <dd className="font-display text-5xl font-semibold tabular-nums text-terracotta sm:text-6xl">
-        <span aria-hidden="true">
-          {shown}
-          {suffix}
-        </span>
+        {/* One string, the element's only child: React then rewrites the element's whole text
+            content on every frame. Two separate text nodes ({shown}{suffix}) were updated in
+            place, and after Chrome's page translation had swapped them for its own nodes the
+            visitor was left looking at a frozen "0+". */}
+        <span aria-hidden="true">{`${shown}${suffix}`}</span>
         <span className="sr-only">{finalText}</span>
       </dd>
     </div>

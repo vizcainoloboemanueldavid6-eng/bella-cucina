@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import { site } from '@/config/site';
+import { DOM_GUARD_SCRIPT } from '@/lib/domGuard';
 import { restaurantJsonLd } from '@/lib/structuredData';
 import './globals.css';
 
@@ -99,6 +100,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             __html: "document.documentElement.classList.add('js');",
           }}
         />
+        {/* Keeps a translated page (Chrome auto-translate) from crashing if a future edit ever
+            reintroduces a bare dynamic text node. Must run before hydration. See src/lib/domGuard.ts. */}
+        <script dangerouslySetInnerHTML={{ __html: DOM_GUARD_SCRIPT }} />
         {/* No hero preload here on purpose: React 19 emits one automatically for the hero's
             fetchPriority="high" <img>, and adding our own only put a second, identical record
             in the exported HTML. */}
